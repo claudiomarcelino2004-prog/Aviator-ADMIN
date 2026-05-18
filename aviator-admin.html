@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AVIATOR ADMIN — Painel de Controlo</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --g1:#00FF41;--g2:#00E676;--g3:#00C853;
+  --dark:#000;--card:rgba(0,255,65,0.05);
+  --border:rgba(0,255,65,0.15);--border2:rgba(0,255,65,0.4);
+  --gold:#FFD700;--red:#FF1744;--orange:#FF6D00;
+  --cyan:#00BCD4;--muted:#4A7A55;--text:#E0FFE8;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#000;color:var(--text);font-family:'Rajdhani',sans-serif;min-height:100vh;}
+
+#cv{position:fixed;top:0;left:0;width:100%;height:100%;opacity:.08;pointer-events:none;z-index:0;}
+
+.wrap{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:0 0 40px;}
+
+/* HEADER */
+header{background:rgba(0,0,0,.95);border-bottom:1px solid var(--border);padding:0 16px;position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);}
+.hdr{display:flex;align-items:center;justify-content:space-between;height:52px;}
+.logo{display:flex;align-items:center;gap:8px;font-family:'Orbitron',monospace;font-weight:900;font-size:.85rem;letter-spacing:2px;color:var(--g1);}
+.logo-ic{width:32px;height:32px;background:linear-gradient(135deg,#00C853,#00FF41);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;box-shadow:0 0 12px rgba(0,255,65,.4);}
+.badge{display:flex;align-items:center;gap:4px;background:rgba(255,23,68,.1);border:1px solid rgba(255,23,68,.3);padding:4px 10px;border-radius:50px;font-size:.65rem;font-weight:700;color:var(--red);letter-spacing:1px;}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--red);animation:pg 1s infinite;}
+@keyframes pg{0%,100%{opacity:1;}50%{opacity:.2;}}
+
+/* LOGIN */
+#loginPage{padding:40px 16px;}
+.login-card{background:var(--card);border:2px solid var(--border2);border-radius:20px;padding:28px 18px;text-align:center;position:relative;overflow:hidden;max-width:380px;margin:0 auto;}
+.login-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--g1),transparent);}
+.login-icon{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#00C853,#00FF41);display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin:0 auto 16px;box-shadow:0 0 24px rgba(0,255,65,.4);}
+.login-title{font-family:'Orbitron',monospace;font-size:1rem;font-weight:900;color:var(--g1);margin-bottom:6px;}
+.login-sub{font-size:.8rem;color:var(--muted);margin-bottom:20px;line-height:1.6;}
+.inp{width:100%;background:rgba(0,0,0,.6);border:1px solid var(--border);border-radius:11px;color:var(--g1);font-family:'Orbitron',monospace;font-size:.88rem;padding:14px 15px;letter-spacing:3px;text-align:center;outline:none;margin-bottom:10px;transition:all .3s;}
+.inp:focus{border-color:var(--g1);box-shadow:0 0 14px rgba(0,255,65,.15);}
+.inp::placeholder{color:var(--muted);letter-spacing:1px;font-size:.72rem;font-family:'Rajdhani',sans-serif;}
+.inp.err{border-color:var(--red);animation:sh .4s;}
+@keyframes sh{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+.err-msg{color:var(--red);font-size:.75rem;margin-bottom:8px;display:none;}
+.btn-primary{width:100%;background:linear-gradient(135deg,#00C853,#00FF41);border:none;border-radius:12px;color:#000;font-family:'Orbitron',monospace;font-size:.84rem;font-weight:900;padding:16px;cursor:pointer;letter-spacing:2px;box-shadow:0 4px 20px rgba(0,255,65,.4);transition:all .3s;}
+.btn-primary:hover{transform:translateY(-2px);}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+
+/* ADMIN PAGE */
+#adminPage{display:none;padding:14px 14px 20px;}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;text-align:center;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--g1),transparent);}
+.stat-ic{font-size:1.4rem;margin-bottom:6px;}
+.stat-val{font-family:'Orbitron',monospace;font-size:1.4rem;font-weight:900;color:var(--g1);}
+.stat-val.gold{color:var(--gold);}
+.stat-val.red{color:var(--red);}
+.stat-val.cyan{color:var(--cyan);}
+.stat-lbl{font-size:.63rem;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:1px;}
+
+/* GERAR CHAVE */
+.section{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:12px;}
+.sec-head{padding:13px 15px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.sec-title{font-family:'Orbitron',monospace;font-size:.78rem;font-weight:700;color:var(--g1);}
+.sec-body{padding:15px;}
+
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-label{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:700;}
+.form-select{background:rgba(0,0,0,.5);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.88rem;padding:10px 12px;outline:none;cursor:pointer;transition:border-color .2s;width:100%;}
+.form-select:focus{border-color:var(--g1);}
+.form-input{background:rgba(0,0,0,.5);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.88rem;padding:10px 12px;outline:none;transition:border-color .2s;width:100%;}
+.form-input:focus{border-color:var(--g1);}
+
+.btn-gen{width:100%;background:linear-gradient(135deg,#00C853,#00FF41);border:none;border-radius:11px;color:#000;font-family:'Orbitron',monospace;font-size:.82rem;font-weight:900;padding:15px;cursor:pointer;letter-spacing:1.5px;box-shadow:0 4px 20px rgba(0,255,65,.35);transition:all .3s;display:flex;align-items:center;justify-content:center;gap:7px;}
+.btn-gen:disabled{opacity:.5;cursor:not-allowed;}
+
+/* RESULTADO CHAVE */
+.key-result{display:none;margin-top:12px;background:rgba(0,0,0,.5);border:1px solid var(--border2);border-radius:12px;padding:14px;}
+.key-result-title{font-size:.65rem;color:rgba(0,255,65,.5);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;font-weight:700;}
+.key-display{font-family:'Orbitron',monospace;font-size:1.2rem;font-weight:900;color:var(--g1);text-shadow:0 0 12px rgba(0,255,65,.4);letter-spacing:3px;text-align:center;margin-bottom:10px;word-break:break-all;}
+.key-info-row{display:flex;justify-content:space-between;font-size:.74rem;margin-bottom:6px;}
+.key-info-l{color:var(--muted);}
+.key-info-v{color:var(--g2);font-weight:700;}
+.btn-copy-key{width:100%;background:rgba(0,255,65,.08);border:1px solid var(--border2);border-radius:9px;color:var(--g1);font-family:'Orbitron',monospace;font-size:.75rem;font-weight:700;padding:11px;cursor:pointer;letter-spacing:1px;transition:all .2s;margin-top:4px;}
+.btn-copy-key:active{background:rgba(0,255,65,.2);}
+
+/* LISTA DE CHAVES */
+.keys-list{display:flex;flex-direction:column;gap:8px;}
+.key-card{background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:12px;padding:12px 14px;position:relative;}
+.key-card.expired{border-color:rgba(255,23,68,.2);opacity:.6;}
+.key-card.lifetime{border-color:rgba(255,215,0,.25);}
+.kc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
+.kc-key{font-family:'Orbitron',monospace;font-size:.8rem;font-weight:700;color:var(--g1);}
+.kc-badge{font-size:.6rem;font-weight:700;padding:3px 8px;border-radius:50px;}
+.kc-badge.active{background:rgba(0,255,65,.1);border:1px solid rgba(0,255,65,.3);color:var(--g1);}
+.kc-badge.expired{background:rgba(255,23,68,.1);border:1px solid rgba(255,23,68,.3);color:var(--red);}
+.kc-badge.lifetime{background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.3);color:var(--gold);}
+.kc-badge.revoked{background:rgba(100,100,100,.1);border:1px solid rgba(100,100,100,.3);color:#555;}
+.kc-info{display:flex;gap:12px;font-size:.7rem;color:var(--muted);margin-bottom:8px;}
+.kc-info span strong{color:var(--text);}
+.btn-revoke{background:rgba(255,23,68,.08);border:1px solid rgba(255,23,68,.2);border-radius:7px;color:var(--red);font-size:.65rem;font-weight:700;padding:5px 10px;cursor:pointer;font-family:'Orbitron',monospace;transition:all .2s;}
+.btn-revoke:hover{background:rgba(255,23,68,.18);}
+.btn-copy-small{background:rgba(0,255,65,.06);border:1px solid rgba(0,255,65,.15);border-radius:7px;color:var(--g2);font-size:.65rem;font-weight:700;padding:5px 10px;cursor:pointer;font-family:'Orbitron',monospace;}
+
+.empty-state{text-align:center;padding:24px;color:var(--muted);font-size:.82rem;}
+.loading-state{text-align:center;padding:20px;color:var(--g2);font-size:.78rem;font-family:'Orbitron',monospace;}
+
+/* REFRESH */
+.btn-refresh{background:rgba(0,188,212,.06);border:1px solid rgba(0,188,212,.2);border-radius:9px;color:var(--cyan);font-size:.7rem;font-weight:700;padding:7px 14px;cursor:pointer;font-family:'Orbitron',monospace;letter-spacing:1px;transition:all .2s;}
+.btn-refresh:hover{background:rgba(0,188,212,.15);}
+
+/* LOGOUT */
+.btn-logout{width:100%;background:transparent;border:1px solid rgba(255,23,68,.2);border-radius:11px;color:rgba(255,23,68,.6);font-family:'Orbitron',monospace;font-size:.75rem;font-weight:700;padding:13px;cursor:pointer;letter-spacing:1px;margin-top:6px;transition:all .2s;}
+.btn-logout:hover{border-color:var(--red);color:var(--red);}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:rgba(0,0,0,.9);border:1px solid var(--g1);border-radius:50px;padding:10px 20px;font-family:'Orbitron',monospace;font-size:.72rem;color:var(--g1);font-weight:700;letter-spacing:1px;transition:transform .3s;z-index:999;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.toast.err-toast{border-color:var(--red);color:var(--red);}
+
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,.3);border-top-color:#000;border-radius:50%;animation:spin .6s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+
+<header>
+  <div class="hdr">
+    <div class="logo">
+      <div class="logo-ic">✈</div>
+      ADMIN PANEL
+    </div>
+    <div class="badge"><div class="dot"></div> RESTRITO</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- LOGIN -->
+  <div id="loginPage">
+    <div class="login-card">
+      <div class="login-icon">🔐</div>
+      <div class="login-title">ACESSO ADMIN</div>
+      <div class="login-sub">Painel exclusivo para gestão de licenças do Aviator AO Pro.</div>
+      <input class="inp" id="pwdInput" type="password" placeholder="Senha de administrador" autocomplete="off">
+      <div class="err-msg" id="loginErr">❌ Senha incorrecta</div>
+      <button class="btn-primary" id="loginBtn" onclick="doLogin()">🔓 ENTRAR</button>
+    </div>
+  </div>
+
+  <!-- ADMIN -->
+  <div id="adminPage">
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-ic">🔑</div>
+        <div class="stat-val" id="stTotal">—</div>
+        <div class="stat-lbl">Total Chaves</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-ic">✅</div>
+        <div class="stat-val green" id="stActive">—</div>
+        <div class="stat-lbl">Activas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-ic">♾️</div>
+        <div class="stat-val gold" id="stLifetime">—</div>
+        <div class="stat-lbl">Vitalícias</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-ic">⏰</div>
+        <div class="stat-val red" id="stExpired">—</div>
+        <div class="stat-lbl">Expiradas</div>
+      </div>
+    </div>
+
+    <!-- GERAR CHAVE -->
+    <div class="section">
+      <div class="sec-head">
+        <span>⚡</span>
+        <span class="sec-title">GERAR NOVA CHAVE</span>
+      </div>
+      <div class="sec-body">
+        <div class="form-row">
+          <div class="form-group">
+            <div class="form-label">Tipo</div>
+            <select class="form-select" id="keyType" onchange="toggleHours()">
+              <option value="temp">Temporária</option>
+              <option value="lifetime">Vitalícia ♾️</option>
+            </select>
+          </div>
+          <div class="form-group" id="hoursGroup">
+            <div class="form-label">Duração</div>
+            <select class="form-select" id="keyHours">
+              <option value="24">24 horas</option>
+              <option value="72">3 dias</option>
+              <option value="168" selected>7 dias</option>
+              <option value="720">30 dias</option>
+              <option value="2160">90 dias</option>
+              <option value="8760">1 ano</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-gen" id="genBtn" onclick="generateKey()">
+          <span class="spin" id="genSpin" style="display:none;"></span>
+          <span id="genTxt">⚡ GERAR CHAVE</span>
+        </button>
+        <div class="key-result" id="keyResult">
+          <div class="key-result-title">✅ CHAVE GERADA COM SUCESSO</div>
+          <div class="key-display" id="keyVal">—</div>
+          <div class="key-info-row">
+            <span class="key-info-l">Tipo:</span>
+            <span class="key-info-v" id="keyTypeVal">—</span>
+          </div>
+          <div class="key-info-row">
+            <span class="key-info-l">Expira em:</span>
+            <span class="key-info-v" id="keyExpVal">—</span>
+          </div>
+          <button class="btn-copy-key" onclick="copyKey()">📋 COPIAR CHAVE</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LISTA DE CHAVES -->
+    <div class="section">
+      <div class="sec-head" style="justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span>📋</span>
+          <span class="sec-title">TODAS AS CHAVES</span>
+        </div>
+        <button class="btn-refresh" onclick="loadKeys()">↻ ACTUALIZAR</button>
+      </div>
+      <div class="sec-body" style="padding:10px 12px;">
+        <div class="keys-list" id="keysList">
+          <div class="loading-state">A carregar...</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-logout" onclick="doLogout()">🚪 SAIR DO PAINEL</button>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* MATRIX */
+const cv=document.getElementById('cv'),cx=cv.getContext('2d');
+cv.width=window.innerWidth;cv.height=window.innerHeight;
+const cols=Math.floor(cv.width/16),drops=Array(cols).fill(1);
+const ch='01アイウエABCDEF0123456789';
+setInterval(()=>{
+  cx.fillStyle='rgba(0,0,0,0.06)';cx.fillRect(0,0,cv.width,cv.height);
+  cx.fillStyle='#00FF41';cx.font='13px monospace';
+  drops.forEach((y,i)=>{cx.fillText(ch[Math.floor(Math.random()*ch.length)],i*16,y*16);if(y*16>cv.height&&Math.random()>.975)drops[i]=0;drops[i]++;});
+},60);
+
+const API = 'https://aviator-api-an72.onrender.com';
+let ADMIN_PWD = '';
+let allKeys = [];
+
+/* LOGIN */
+document.getElementById('pwdInput').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
+async function doLogin(){
+  const pwd = document.getElementById('pwdInput').value.trim();
+  if(!pwd) return;
+  const btn = document.getElementById('loginBtn');
+  btn.textContent='A verificar...'; btn.disabled=true;
+  try {
+    const res = await fetch(`${API}/admin/keys`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({password: pwd})
+    });
+    const data = await res.json();
+    if(data.status === 'sucesso'){
+      ADMIN_PWD = pwd;
+      document.getElementById('loginPage').style.display='none';
+      document.getElementById('adminPage').style.display='block';
+      allKeys = data.keys || [];
+      renderKeys(allKeys);
+      updateStats(allKeys);
+      showToast('✅ Acesso concedido!');
+    } else {
+      document.getElementById('loginErr').style.display='block';
+      document.getElementById('pwdInput').classList.add('err');
+      setTimeout(()=>document.getElementById('pwdInput').classList.remove('err'),500);
+    }
+  } catch(e){
+    showToast('⚠️ Servidor offline, aguarda 30s...', true);
+  }
+  btn.textContent='🔓 ENTRAR'; btn.disabled=false;
+}
+
+function doLogout(){
+  ADMIN_PWD=''; allKeys=[];
+  document.getElementById('adminPage').style.display='none';
+  document.getElementById('loginPage').style.display='block';
+  document.getElementById('pwdInput').value='';
+  document.getElementById('loginErr').style.display='none';
+}
+
+/* STATS */
+function updateStats(keys){
+  const total = keys.length;
+  const now = new Date();
+  const active = keys.filter(k => k.active && (k.expires==='lifetime' || new Date(k.expires)>now)).length;
+  const lifetime = keys.filter(k => k.type==='lifetime' && k.active).length;
+  const expired = keys.filter(k => k.expires!=='lifetime' && new Date(k.expires)<now).length;
+  document.getElementById('stTotal').textContent = total;
+  document.getElementById('stActive').textContent = active;
+  document.getElementById('stLifetime').textContent = lifetime;
+  document.getElementById('stExpired').textContent = expired;
+}
+
+/* GERAR CHAVE */
+function toggleHours(){
+  const t = document.getElementById('keyType').value;
+  document.getElementById('hoursGroup').style.opacity = t==='lifetime'?'0.3':'1';
+  document.getElementById('keyHours').disabled = t==='lifetime';
+}
+
+async function generateKey(){
+  const btn = document.getElementById('genBtn');
+  const spin = document.getElementById('genSpin');
+  const txt = document.getElementById('genTxt');
+  btn.disabled=true; spin.style.display='inline-block'; txt.textContent='A GERAR...';
+  document.getElementById('keyResult').style.display='none';
+  try {
+    const type = document.getElementById('keyType').value;
+    const hours = parseInt(document.getElementById('keyHours').value);
+    const res = await fetch(`${API}/admin/generate`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({password: ADMIN_PWD, hours, type})
+    });
+    const data = await res.json();
+    if(data.status==='sucesso'){
+      document.getElementById('keyVal').textContent = data.key;
+      document.getElementById('keyTypeVal').textContent = type==='lifetime'?'Vitalícia ♾️':'Temporária';
+      document.getElementById('keyExpVal').textContent = type==='lifetime'?'Nunca expira':formatDate(data.expires);
+      document.getElementById('keyResult').style.display='block';
+      showToast('🔑 Chave gerada!');
+      loadKeys();
+    }
+  } catch(e){ showToast('❌ Erro ao gerar chave', true); }
+  btn.disabled=false; spin.style.display='none'; txt.textContent='⚡ GERAR CHAVE';
+}
+
+function copyKey(){
+  const key = document.getElementById('keyVal').textContent;
+  navigator.clipboard.writeText(key).then(()=>showToast('📋 Chave copiada!')).catch(()=>{
+    // fallback para celular
+    const ta=document.createElement('textarea');ta.value=key;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    showToast('📋 Chave copiada!');
+  });
+}
+
+/* CARREGAR CHAVES */
+async function loadKeys(){
+  document.getElementById('keysList').innerHTML='<div class="loading-state">⏳ A carregar...</div>';
+  try {
+    const res = await fetch(`${API}/admin/keys`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({password: ADMIN_PWD})
+    });
+    const data = await res.json();
+    if(data.status==='sucesso'){
+      allKeys = data.keys;
+      renderKeys(allKeys);
+      updateStats(allKeys);
+    }
+  } catch(e){ document.getElementById('keysList').innerHTML='<div class="empty-state">⚠️ Erro ao carregar</div>'; }
+}
+
+function renderKeys(keys){
+  const list = document.getElementById('keysList');
+  if(!keys.length){ list.innerHTML='<div class="empty-state">Nenhuma chave gerada ainda</div>'; return; }
+  const now = new Date();
+  list.innerHTML = keys.map(k=>{
+    const isLifetime = k.type==='lifetime';
+    const isExpired = !isLifetime && new Date(k.expires)<now;
+    const isRevoked = !k.active;
+    let badgeClass = 'active', badgeTxt = '✅ ACTIVA';
+    if(isRevoked){ badgeClass='revoked'; badgeTxt='🚫 REVOGADA'; }
+    else if(isLifetime){ badgeClass='lifetime'; badgeTxt='♾️ VITALÍCIA'; }
+    else if(isExpired){ badgeClass='expired'; badgeTxt='⏰ EXPIRADA'; }
+    const cardClass = isRevoked||isExpired?'expired':isLifetime?'lifetime':'';
+    return `
+    <div class="key-card ${cardClass}">
+      <div class="kc-top">
+        <div class="kc-key">${k.key}</div>
+        <div class="kc-badge ${badgeClass}">${badgeTxt}</div>
+      </div>
+      <div class="kc-info">
+        <span>Tipo: <strong>${k.type==='lifetime'?'Vitalícia':'Temp'}</strong></span>
+        <span>Expira: <strong>${isLifetime?'Nunca':formatDate(k.expires)}</strong></span>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <button class="btn-copy-small" onclick="copyText('${k.key}')">📋 COPIAR</button>
+        ${!isRevoked?`<button class="btn-revoke" onclick="revokeKey('${k.key}')">🚫 REVOGAR</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* REVOGAR */
+async function revokeKey(key){
+  if(!confirm(`Revogar a chave ${key}?`)) return;
+  try {
+    const res = await fetch(`${API}/admin/revoke`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({password: ADMIN_PWD, key})
+    });
+    const data = await res.json();
+    if(data.status==='sucesso'){ showToast('🚫 Chave revogada!'); loadKeys(); }
+  } catch(e){ showToast('❌ Erro ao revogar', true); }
+}
+
+/* UTILS */
+function copyText(txt){
+  navigator.clipboard.writeText(txt).then(()=>showToast('📋 Copiado!')).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    showToast('📋 Copiado!');
+  });
+}
+
+function formatDate(iso){
+  if(!iso||iso==='lifetime') return 'Nunca';
+  try {
+    const d=new Date(iso);
+    return d.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric'})+' '+d.toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'});
+  } catch(e){ return iso; }
+}
+
+let toastTimer;
+function showToast(msg, isErr=false){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast'+(isErr?' err-toast':'');
+  setTimeout(()=>t.classList.add('show'),10);
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
+}
+</script>
+</body>
+</html>
